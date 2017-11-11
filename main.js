@@ -1,34 +1,43 @@
 #!/usr/bin/env node
+
 var inquirer = require("inquirer");
 var prompt = require("prompt");
 var fs = require("fs");
 
-var selectWord = require("./selectWord");
 var Word = require("./word");
 
-//Randomly select game word or phrase from file
-gameWord = selectWord(['Cat Simone','Dog Jet','word3']);
+// Randomly select game word or phrase from file
 
-// playGame(gameWord);
+var contents = fs.readFileSync('answers.json', 'utf8');
+var randomword = Math.floor(Math.random() * JSON.parse(contents).length);
+var gameWord = JSON.parse(contents)[randomword];
 
-var wrongGuesses = 0;
-var newWord = new Word(gameWord);
 //Create a new word object with the game word
-console.log(newWord);
-var currentWord;
+var constructedWord = new Word(gameWord);
 //Display the blank letters and spaces to the user
-newWord.getLetters();
+var maskedMessage = constructedWord.getLetters();
+var splitWord = constructedWord.splitWord;
+
+
+var guesses = 7;
+
 
 playGame();
 
 
 function playGame() {
-	if(wrongGuesses > 7) {
+	console.log('----------------------------------------------------')
+	console.log('WORD OR PHRASE TO GUESS')
+	console.log(maskedMessage);
+	console.log('----------------------------------------------------')
+	if(guesses === 0) {
 		console.log('YOUR MAN IS HUNG! GAME OVER')
+		console.log('THE WORD OR PHRASE WAS ' + constructedWord.word)
 		return;
 	} 
-	if(currentWord === gameWord) {
-		console.log('YOU WON!')
+	if(maskedMessage.join('') === splitWord.join('')) {
+		console.log('YOU WON! THE WORD OR PHRASE IS')
+		console.log(constructedWord.word)
 		return;
 	}
 	else {
@@ -49,28 +58,35 @@ function guessLetter() {
 		}
 	}
 	]).then(function(answer){
-		if(newWord.guessed.includes(answer.guess)) {
-			console.log('You already guessed that letter, please ick a new letter.')
+		if(constructedWord.guessed.includes(answer.guess)) {
+			console.log('You already guessed that letter, please choose a new letter.')
 			guessLetter()
 		}
-		else{
+		else {
 		checkForLetter(answer.guess);
 		}
 	})
 }
 
 function checkForLetter(letter){
-	newWord.guessed.push(letter)
-	console.log(newWord.guessed)
+	constructedWord.guessed.push(letter)
+	console.log('YOU HAVE GUESSED THESE LETTERS')
+	console.log(constructedWord.guessed)
+	console.log('----------------------------------------------------')
 
 	if(gameWord.toLowerCase().includes(letter)) {
+
+		for (var i = 0; i < splitWord.length; i++) {	
+			if(letter == splitWord[i]) {
+				maskedMessage[i] = letter;	
+			}
+		}
 		playGame()
 	}
 	else {
-		wrongGuesses ++
-		console.log(wrongGuesses)
+		guesses --
+		console.log('YOU HAVE ' + guesses + ' GUESSES REMAINING')
 		playGame()
-
 	}
 };
 

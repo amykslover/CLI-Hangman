@@ -13,9 +13,9 @@ function Letter(letter) {
 
 Letter.prototype.displayLetter = function(letter,display) {
 	if (this.display) {
-		return '   '
+		return ' '
 	} else {
-		return '___ '
+		return '_'
 	}
 }
 
