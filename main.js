@@ -3,25 +3,23 @@
 var inquirer = require("inquirer");
 var prompt = require("prompt");
 var fs = require("fs");
-
+var getWord = require('./selectWord');
 var Word = require("./word");
 
 // Randomly select game word or phrase from file
-
-var contents = fs.readFileSync('answers.json', 'utf8');
-var randomword = Math.floor(Math.random() * JSON.parse(contents).length);
-var gameWord = JSON.parse(contents)[randomword];
+var gameWord = getWord('answers.json');
 
 //Create a new word object with the game word
 var constructedWord = new Word(gameWord);
+
 //Display the blank letters and spaces to the user
 var maskedMessage = constructedWord.getLetters();
 var splitWord = constructedWord.splitWord;
 
-
+//Set the number of guesses the user can have to guess the letter
 var guesses = 7;
 
-
+//Call the starting function
 playGame();
 
 
